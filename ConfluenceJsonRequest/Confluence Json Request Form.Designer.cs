@@ -50,7 +50,6 @@
             this.passwordTextbox.Name = "passwordTextbox";
             this.passwordTextbox.Size = new System.Drawing.Size(127, 20);
             this.passwordTextbox.TabIndex = 1;
-            this.passwordTextbox.Text = "bvtc8Cum!";
             // 
             // PasswordLabel
             // 
