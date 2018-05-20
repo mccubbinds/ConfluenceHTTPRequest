@@ -34,6 +34,9 @@
             this.UsernameLabel = new System.Windows.Forms.Label();
             this.GoButton = new System.Windows.Forms.Button();
             this.logTextbox = new System.Windows.Forms.TextBox();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.comboBox2 = new System.Windows.Forms.ComboBox();
+            this.comboBox3 = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // usernameTextbox
@@ -81,17 +84,45 @@
             // 
             // logTextbox
             // 
-            this.logTextbox.Location = new System.Drawing.Point(15, 63);
+            this.logTextbox.Location = new System.Drawing.Point(15, 144);
             this.logTextbox.Multiline = true;
             this.logTextbox.Name = "logTextbox";
-            this.logTextbox.Size = new System.Drawing.Size(243, 118);
+            this.logTextbox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.logTextbox.Size = new System.Drawing.Size(243, 479);
             this.logTextbox.TabIndex = 5;
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Location = new System.Drawing.Point(71, 63);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(121, 21);
+            this.comboBox1.TabIndex = 6;
+            // 
+            // comboBox2
+            // 
+            this.comboBox2.FormattingEnabled = true;
+            this.comboBox2.Location = new System.Drawing.Point(71, 90);
+            this.comboBox2.Name = "comboBox2";
+            this.comboBox2.Size = new System.Drawing.Size(121, 21);
+            this.comboBox2.TabIndex = 7;
+            // 
+            // comboBox3
+            // 
+            this.comboBox3.FormattingEnabled = true;
+            this.comboBox3.Location = new System.Drawing.Point(71, 117);
+            this.comboBox3.Name = "comboBox3";
+            this.comboBox3.Size = new System.Drawing.Size(121, 21);
+            this.comboBox3.TabIndex = 8;
             // 
             // ConfluenceJsonRequest
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(270, 193);
+            this.ClientSize = new System.Drawing.Size(270, 635);
+            this.Controls.Add(this.comboBox3);
+            this.Controls.Add(this.comboBox2);
+            this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.logTextbox);
             this.Controls.Add(this.GoButton);
             this.Controls.Add(this.PasswordLabel);
@@ -113,6 +144,9 @@
         private System.Windows.Forms.Label UsernameLabel;
         private System.Windows.Forms.Button GoButton;
         private System.Windows.Forms.TextBox logTextbox;
+        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.ComboBox comboBox2;
+        private System.Windows.Forms.ComboBox comboBox3;
     }
 }
 
