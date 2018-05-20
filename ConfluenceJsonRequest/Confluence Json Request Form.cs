@@ -15,9 +15,12 @@ namespace ConfluenceJsonRequest
 {
     public partial class ConfluenceJsonRequest : Form
     {
+        List<Device> DeviceList;
+
         public ConfluenceJsonRequest()
         {
             InitializeComponent();
+            DeviceList = new List<Device>();
         }
 
         string GetJsonFromHttpAuth(string url, string username, string password, ref JObject jObject)
@@ -80,12 +83,28 @@ namespace ConfluenceJsonRequest
                         .Select(tr => tr.Elements("td").Select(td => td.InnerText.Trim()).ToList())
                         .ToList();
 
+            bool nextTableOnNextReserveField = false;
             foreach (List<string> list in table)
             {
-                foreach (string item in list)
+                if (Convert.ToByte(list[0]) == 0)
                 {
-                    logTextbox.AppendText(item + "\r\n");
+                    if(nextTableOnNextReserveField == true)
+                    {
+                        break;
+                    }
+
+                    else
+                    {
+                        nextTableOnNextReserveField = true;
+                    }
                 }
+
+                DeviceList.Add(new Device(Convert.ToByte(list[0]), list[1]));
+            }
+
+            foreach(Device device in DeviceList)
+            {
+                logTextbox.AppendText(device.Name + " " + device.Index.ToString() + "\r\n");
             }
         }
     }
