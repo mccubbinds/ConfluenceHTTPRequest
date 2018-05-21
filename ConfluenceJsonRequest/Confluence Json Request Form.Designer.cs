@@ -34,7 +34,7 @@
             this.UsernameLabel = new System.Windows.Forms.Label();
             this.GoButton = new System.Windows.Forms.Button();
             this.logTextbox = new System.Windows.Forms.TextBox();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.DevicesComboBox = new System.Windows.Forms.ComboBox();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
             this.comboBox3 = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
@@ -91,13 +91,13 @@
             this.logTextbox.Size = new System.Drawing.Size(243, 479);
             this.logTextbox.TabIndex = 5;
             // 
-            // comboBox1
+            // DevicesComboBox
             // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(71, 63);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(121, 21);
-            this.comboBox1.TabIndex = 6;
+            this.DevicesComboBox.FormattingEnabled = true;
+            this.DevicesComboBox.Location = new System.Drawing.Point(71, 63);
+            this.DevicesComboBox.Name = "DevicesComboBox";
+            this.DevicesComboBox.Size = new System.Drawing.Size(121, 21);
+            this.DevicesComboBox.TabIndex = 6;
             // 
             // comboBox2
             // 
@@ -122,7 +122,7 @@
             this.ClientSize = new System.Drawing.Size(270, 635);
             this.Controls.Add(this.comboBox3);
             this.Controls.Add(this.comboBox2);
-            this.Controls.Add(this.comboBox1);
+            this.Controls.Add(this.DevicesComboBox);
             this.Controls.Add(this.logTextbox);
             this.Controls.Add(this.GoButton);
             this.Controls.Add(this.PasswordLabel);
@@ -144,7 +144,7 @@
         private System.Windows.Forms.Label UsernameLabel;
         private System.Windows.Forms.Button GoButton;
         private System.Windows.Forms.TextBox logTextbox;
-        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.ComboBox DevicesComboBox;
         private System.Windows.Forms.ComboBox comboBox2;
         private System.Windows.Forms.ComboBox comboBox3;
     }

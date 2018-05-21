@@ -23,8 +23,9 @@ namespace ConfluenceJsonRequest
             DeviceList = new List<Device>();
         }
 
-        string GetJsonFromHttpAuth(string url, string username, string password, ref JObject jObject)
+        ResponseCode.Response GetJsonFromHttpAuth(string url, string username, string password, ref JObject jObject)
         {
+            ResponseCode.Response responseCode;
             string usernamePassword = username + ":" + password;
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
@@ -40,7 +41,8 @@ namespace ConfluenceJsonRequest
                     string jsonObjectString = reader.ReadToEnd();
 
                     jObject = JObject.Parse(jsonObjectString);
-                    return "Json successfully retreived.";
+
+                    responseCode = ResponseCode.Response.Success;
                 }
             }
             catch (WebException ex)
@@ -51,61 +53,114 @@ namespace ConfluenceJsonRequest
                     StreamReader reader = new StreamReader(responseStream, System.Text.Encoding.GetEncoding("utf-8"));
                     String errorText = reader.ReadToEnd();
 
-                    return "Http request Failed.\r\n" + errorText + "\r\n";
+                    responseCode = ResponseCode.Response.HttpRequestFailed;
                 }
             }
+
+            return responseCode;
         }
 
         private void GoButton_Click(object sender, EventArgs e)
         {
+            const int deviceTablePosition = 0;
             JObject jsonObject = null;
-            string responseString = GetJsonFromHttpAuth(
+
+            var responseCode = GetJsonFromHttpAuth(
                 "https://syn-confluence.tms-orbcomm.com:8800/rest/api/content?spaceKey=GT1020FW&title=Device+Specification&expand=body.view",
                 usernameTextbox.Text,
                 passwordTextbox.Text,
                 ref jsonObject);
 
-            ParseJsonForDeviceComponentParameterNumbers(jsonObject);
-            logTextbox.AppendText(responseString);
+            if(responseCode == ResponseCode.Response.Success)
+            {
+                string deviceSpecificationTablesHtml = string.Empty;
+                responseCode = ParseJsonForTableHtml(jsonObject, ref deviceSpecificationTablesHtml);
+
+                if (responseCode == ResponseCode.Response.Success)
+                {
+                    responseCode = ParseTableHtmlForList(deviceSpecificationTablesHtml, deviceTablePosition);
+                    UpdateDataSources();
+                }
+            }
+
+            logTextbox.AppendText(responseCode.ToString());
         }
 
-        private void ParseJsonForDeviceComponentParameterNumbers(JObject jsonObject)
+        private ResponseCode.Response ParseJsonForTableHtml(JObject jsonObject,  ref string deviceSpecificationTablesHtml)
         {
-            string deviceSpecificationTablesHtml = "<body>" + (string)jsonObject["results"][0]["body"]["view"]["value"] + "</body>";
-
-            var doc = new HtmlAgilityPack.HtmlDocument();
-            doc.LoadHtml(deviceSpecificationTablesHtml);
-
-            List<List<string>> table = doc.DocumentNode.SelectSingleNode("//body")
-                        .Descendants("tr")
-                        .Skip(1)
-                        .Where(tr => tr.Elements("td").Count() > 1)
-                        .Select(tr => tr.Elements("td").Select(td => td.InnerText.Trim()).ToList())
-                        .ToList();
-
-            bool nextTableOnNextReserveField = false;
-            foreach (List<string> list in table)
+            ResponseCode.Response responseCode;
+            try
             {
-                if (Convert.ToByte(list[0]) == 0)
+                deviceSpecificationTablesHtml = "<body>" + (string)jsonObject["results"][0]["body"]["view"]["value"] + "</body>";
+
+                responseCode = ResponseCode.Response.Success;
+            }
+
+            catch(Exception all)
+            {
+                responseCode = ResponseCode.Response.UnableToParseJson;
+            }
+
+            return responseCode;
+        }
+
+
+        private ResponseCode.Response ParseTableHtmlForList(string tablesHtml, int tablePosition)
+        {
+            ResponseCode.Response responseCode;
+
+            try
+            {
+                var doc = new HtmlAgilityPack.HtmlDocument();
+                doc.LoadHtml(tablesHtml);
+
+                List<List<string>> table = doc.DocumentNode.SelectSingleNode("//body")
+                            .Descendants("tr")
+                            .Skip(1)
+                            .Where(tr => tr.Elements("td").Count() > 1)
+                            .Select(tr => tr.Elements("td").Select(td => td.InnerText.Trim()).ToList())
+                            .ToList();
+
+                bool parseTable = false;
+                foreach (List<string> list in table)
                 {
-                    if(nextTableOnNextReserveField == true)
+                    if (Convert.ToByte(list[0]) == 0)   //if we are at the beginning of a table
                     {
-                        break;
+                        if (tablePosition == 0)         //if this is the table we are trying to parse
+                        {
+                            parseTable = true;
+                        }
+
+                        else
+                        {
+                            parseTable = false;
+                        }
+
+                        tablePosition--;
                     }
 
-                    else
+                    if (parseTable == true)
                     {
-                        nextTableOnNextReserveField = true;
+                        DeviceList.Add(new Device(Convert.ToByte(list[0]), list[1]));
                     }
                 }
 
-                DeviceList.Add(new Device(Convert.ToByte(list[0]), list[1]));
+                responseCode = ResponseCode.Response.Success;
             }
 
-            foreach(Device device in DeviceList)
+            catch(Exception all)
             {
-                logTextbox.AppendText(device.Name + " " + device.Index.ToString() + "\r\n");
+                responseCode = ResponseCode.Response.ErrorWhileParsingTableData;
             }
+
+            return responseCode;
+        }
+
+        private void UpdateDataSources()
+        {
+            DevicesComboBox.DataSource = DeviceList;
+            DevicesComboBox.DisplayMember = "Name";
+            DevicesComboBox.ValueMember = "Index";
         }
     }
 }

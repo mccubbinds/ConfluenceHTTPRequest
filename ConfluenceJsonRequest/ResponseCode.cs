@@ -8,6 +8,10 @@
             UnknownDevice,
             UnkownComponent,
             UnknownParameter,
+            HttpRequestFailed,
+            UnableToParseJson,
+            UnableToParseHtml,
+            ErrorWhileParsingTableData,
             UnknownFailure
         }
     }
