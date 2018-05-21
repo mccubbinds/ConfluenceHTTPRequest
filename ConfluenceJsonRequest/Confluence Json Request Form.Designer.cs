@@ -35,7 +35,7 @@
             this.GoButton = new System.Windows.Forms.Button();
             this.logTextbox = new System.Windows.Forms.TextBox();
             this.DevicesComboBox = new System.Windows.Forms.ComboBox();
-            this.comboBox2 = new System.Windows.Forms.ComboBox();
+            this.ComponentsComboBox = new System.Windows.Forms.ComboBox();
             this.comboBox3 = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
@@ -98,14 +98,15 @@
             this.DevicesComboBox.Name = "DevicesComboBox";
             this.DevicesComboBox.Size = new System.Drawing.Size(121, 21);
             this.DevicesComboBox.TabIndex = 6;
+            this.DevicesComboBox.SelectedIndexChanged += new System.EventHandler(this.DevicesComboBox_SelectedIndexChanged);
             // 
-            // comboBox2
+            // ComponentsComboBox
             // 
-            this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Location = new System.Drawing.Point(71, 90);
-            this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(121, 21);
-            this.comboBox2.TabIndex = 7;
+            this.ComponentsComboBox.FormattingEnabled = true;
+            this.ComponentsComboBox.Location = new System.Drawing.Point(71, 90);
+            this.ComponentsComboBox.Name = "ComponentsComboBox";
+            this.ComponentsComboBox.Size = new System.Drawing.Size(121, 21);
+            this.ComponentsComboBox.TabIndex = 7;
             // 
             // comboBox3
             // 
@@ -121,7 +122,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(270, 635);
             this.Controls.Add(this.comboBox3);
-            this.Controls.Add(this.comboBox2);
+            this.Controls.Add(this.ComponentsComboBox);
             this.Controls.Add(this.DevicesComboBox);
             this.Controls.Add(this.logTextbox);
             this.Controls.Add(this.GoButton);
@@ -145,7 +146,7 @@
         private System.Windows.Forms.Button GoButton;
         private System.Windows.Forms.TextBox logTextbox;
         private System.Windows.Forms.ComboBox DevicesComboBox;
-        private System.Windows.Forms.ComboBox comboBox2;
+        private System.Windows.Forms.ComboBox ComponentsComboBox;
         private System.Windows.Forms.ComboBox comboBox3;
     }
 }

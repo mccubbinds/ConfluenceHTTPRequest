@@ -8,7 +8,7 @@ namespace ConfluenceJsonRequest
 {
     internal class Device
     {
-        private List<Component> ComponentList;
+        public List<Component> ComponentList { get; set; }
 
         public byte Index { get; set; }
         public string Name { get; set; }
