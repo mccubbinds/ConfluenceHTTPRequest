@@ -17,6 +17,7 @@ namespace ConfluenceJsonRequest
         {
             Index = index;
             Name = name;
+            ComponentList = new List<Component>();
         }
 
         public Device(byte index, string name, List<Component> componentList)

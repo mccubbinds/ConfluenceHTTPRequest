@@ -15,6 +15,8 @@ namespace ConfluenceJsonRequest
 {
     public partial class ConfluenceJsonRequest : Form
     {
+        const string DeviceSpecificationPageUrl = "https://syn-confluence.tms-orbcomm.com:8800/rest/api/content?spaceKey=GT1020FW&title=Device+Specification&expand=body.view";
+
         List<Device> DeviceList;
 
         public ConfluenceJsonRequest()
@@ -72,7 +74,7 @@ namespace ConfluenceJsonRequest
             JObject jsonObject = null;
 
             var responseCode = GetJsonFromHttpAuth(
-                "https://syn-confluence.tms-orbcomm.com:8800/rest/api/content?spaceKey=GT1020FW&title=Device+Specification&expand=body.view",
+                DeviceSpecificationPageUrl,
                 usernameTextbox.Text,
                 passwordTextbox.Text,
                 ref jsonObject);
@@ -80,7 +82,7 @@ namespace ConfluenceJsonRequest
             if(responseCode == ResponseCode.Response.Success)
             {
                 string deviceSpecificationTablesHtml = string.Empty;
-                responseCode = ParseJsonForTablesHtml(jsonObject, ref deviceSpecificationTablesHtml);
+                responseCode = ParsedeviceSpecificationJsonForTablesHtml(jsonObject, ref deviceSpecificationTablesHtml);
 
                 if (responseCode == ResponseCode.Response.Success)
                 {
@@ -104,7 +106,7 @@ namespace ConfluenceJsonRequest
             JObject jsonObject = null;
 
             var responseCode = GetJsonFromHttpAuth(
-                "https://syn-confluence.tms-orbcomm.com:8800/rest/api/content?spaceKey=GT1020FW&title=Device+Specification&expand=body.view",
+                DeviceSpecificationPageUrl,
                 usernameTextbox.Text,
                 passwordTextbox.Text,
                 ref jsonObject);
@@ -112,30 +114,34 @@ namespace ConfluenceJsonRequest
             if (responseCode == ResponseCode.Response.Success)
             {
                 string deviceSpecificationTablesHtml = string.Empty;
-                responseCode = ParseJsonForTablesHtml(jsonObject, ref deviceSpecificationTablesHtml);
+                responseCode = ParsedeviceSpecificationJsonForTablesHtml(jsonObject, ref deviceSpecificationTablesHtml);
 
                 if (responseCode == ResponseCode.Response.Success)
                 {
-                    byte deviceNumber = Convert.ToByte(DevicesComboBox.SelectedValue.ToString());
-
-                    List<List<string>> tableToReturn = new List<List<string>>();
-                    responseCode = ParseTablesHtmlForTable(
-                        deviceSpecificationTablesHtml,
-                        deviceNumber,
-                        ref tableToReturn);
-
-                    foreach (List<string> row in tableToReturn)
+                    if (DevicesComboBox.SelectedValue != null)
                     {
-                        DeviceList[deviceNumber].AddComponentToList(Convert.ToByte(row[0]), row[0]);
-                    }
+                        Device device = (Device)DevicesComboBox.SelectedItem;
+                        var deviceNumber = device.Index;
 
-                    UpdateDataSources(deviceNumber);
+                        List<List<string>> tableToReturn = new List<List<string>>();
+                        responseCode = ParseTablesHtmlForTable(
+                            deviceSpecificationTablesHtml,
+                            deviceNumber,
+                            ref tableToReturn);
+
+                        foreach (List<string> row in tableToReturn)
+                        {
+                            DeviceList[deviceNumber].AddComponentToList(Convert.ToByte(row[0]), row[1]);
+                        }
+
+                        UpdateDataSources(deviceNumber);
+                    }
                 }
             }
             
         }
 
-        private ResponseCode.Response ParseJsonForTablesHtml(JObject jsonObject,  ref string deviceSpecificationTablesHtml)
+        private ResponseCode.Response ParsedeviceSpecificationJsonForTablesHtml(JObject jsonObject,  ref string deviceSpecificationTablesHtml)
         {
             ResponseCode.Response responseCode;
             try
@@ -205,7 +211,7 @@ namespace ConfluenceJsonRequest
             return responseCode;
         }
 
-        private void UpdateDataSources(byte deviceNumber)
+        private void UpdateDataSources(int deviceNumber)
         {
             DevicesComboBox.DataSource = DeviceList;
 
