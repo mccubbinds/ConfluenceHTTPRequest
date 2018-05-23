@@ -28,6 +28,9 @@ namespace ConfluenceJsonRequest
             ResponseCode.Response responseCode;
             string usernamePassword = username + ":" + password;
 
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.GetEncoding("ISO-8859-1").GetBytes(usernamePassword));
             request.PreAuthenticate = true;
@@ -48,13 +51,16 @@ namespace ConfluenceJsonRequest
             catch (WebException ex)
             {
                 WebResponse errorResponse = ex.Response;
-                using (Stream responseStream = errorResponse.GetResponseStream())
+                if (errorResponse != null)
                 {
-                    StreamReader reader = new StreamReader(responseStream, System.Text.Encoding.GetEncoding("utf-8"));
-                    String errorText = reader.ReadToEnd();
-
-                    responseCode = ResponseCode.Response.HttpRequestFailed;
+                    using (Stream responseStream = errorResponse.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(responseStream, System.Text.Encoding.GetEncoding("utf-8"));
+                        String errorText = reader.ReadToEnd();
+                    }
                 }
+
+                responseCode = ResponseCode.Response.HttpRequestFailed;
             }
 
             return responseCode;
