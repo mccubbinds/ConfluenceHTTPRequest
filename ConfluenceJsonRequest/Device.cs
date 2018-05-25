@@ -27,9 +27,9 @@ namespace ConfluenceJsonRequest
             ComponentList = componentList;
         }
 
-        public void AddComponentToList(byte index, string name)
+        public void AddComponentToList(byte index, string name, string componentPageTitle)
         {
-            ComponentList.Add(new Component(index, name));
+            ComponentList.Add(new Component(index, name, componentPageTitle));
         }
 
         public ResponseCode.Response GetComponent(byte index, ref Component componentToReturn)
@@ -51,15 +51,18 @@ namespace ConfluenceJsonRequest
 
     internal class Component
     {
-        List<Parameter> ParameterList;
+        public List<Parameter> ParameterList { get; set; }
 
         public byte Index { get; set; }
         public string Name { get; set; }
+        public string ComponentPageTitle { get; set; }
 
-        public Component(byte index, string name)
+        public Component(byte index, string name, string componentPageTitle)
         {
             Index = index;
             Name = name;
+            ComponentPageTitle = componentPageTitle;
+            ParameterList = new List<Parameter>();
         }
 
         public Component(byte index, string name,  List<Parameter> parameterList)

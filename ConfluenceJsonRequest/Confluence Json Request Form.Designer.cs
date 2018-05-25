@@ -36,7 +36,7 @@
             this.logTextbox = new System.Windows.Forms.TextBox();
             this.DevicesComboBox = new System.Windows.Forms.ComboBox();
             this.ComponentsComboBox = new System.Windows.Forms.ComboBox();
-            this.comboBox3 = new System.Windows.Forms.ComboBox();
+            this.ParametersCombobox = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // usernameTextbox
@@ -107,21 +107,22 @@
             this.ComponentsComboBox.Name = "ComponentsComboBox";
             this.ComponentsComboBox.Size = new System.Drawing.Size(121, 21);
             this.ComponentsComboBox.TabIndex = 7;
+            this.ComponentsComboBox.SelectedValueChanged += new System.EventHandler(this.ComponentsComboBox_SelectedValueChanged);
             // 
-            // comboBox3
+            // ParametersCombobox
             // 
-            this.comboBox3.FormattingEnabled = true;
-            this.comboBox3.Location = new System.Drawing.Point(71, 117);
-            this.comboBox3.Name = "comboBox3";
-            this.comboBox3.Size = new System.Drawing.Size(121, 21);
-            this.comboBox3.TabIndex = 8;
+            this.ParametersCombobox.FormattingEnabled = true;
+            this.ParametersCombobox.Location = new System.Drawing.Point(71, 117);
+            this.ParametersCombobox.Name = "ParametersCombobox";
+            this.ParametersCombobox.Size = new System.Drawing.Size(121, 21);
+            this.ParametersCombobox.TabIndex = 8;
             // 
             // ConfluenceJsonRequest
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(270, 635);
-            this.Controls.Add(this.comboBox3);
+            this.Controls.Add(this.ParametersCombobox);
             this.Controls.Add(this.ComponentsComboBox);
             this.Controls.Add(this.DevicesComboBox);
             this.Controls.Add(this.logTextbox);
@@ -147,7 +148,7 @@
         private System.Windows.Forms.TextBox logTextbox;
         private System.Windows.Forms.ComboBox DevicesComboBox;
         private System.Windows.Forms.ComboBox ComponentsComboBox;
-        private System.Windows.Forms.ComboBox comboBox3;
+        private System.Windows.Forms.ComboBox ParametersCombobox;
     }
 }
 

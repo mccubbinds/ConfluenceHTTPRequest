@@ -15,9 +15,14 @@ namespace ConfluenceJsonRequest
 {
     public partial class ConfluenceJsonRequest : Form
     {
-        const string DeviceSpecificationPageUrl = "https://syn-confluence.tms-orbcomm.com:8800/rest/api/content?spaceKey=GT1020FW&title=Device+Specification&expand=body.view";
+        string DeviceSpecificationTitle = "Device+Specification";
 
         List<Device> DeviceList;
+        JObject DeviceSpecificationJsonObject;
+        string DeviceSpecificationTablesHtml;
+
+        byte CurrentlySelectedDeviceNumber = 0xFF;  //Default to invalid
+        byte CurrentlySelectedComponentNumber = 0xFF;
 
         public ConfluenceJsonRequest()
         {
@@ -68,77 +73,107 @@ namespace ConfluenceJsonRequest
             return responseCode;
         }
 
+        private static string GetRestUrl(string pageTitle)
+        {
+            return "https://syn-confluence.tms-orbcomm.com:8800/rest/api/content?spaceKey=GT1020FW&title=" + pageTitle + "&expand=body.view";
+        }
+
         private void GoButton_Click(object sender, EventArgs e)
         {
             const int deviceTablePosition = 0;
-            JObject jsonObject = null;
 
             var responseCode = GetJsonFromHttpAuth(
-                DeviceSpecificationPageUrl,
+                GetRestUrl(DeviceSpecificationTitle),
                 usernameTextbox.Text,
                 passwordTextbox.Text,
-                ref jsonObject);
+                ref DeviceSpecificationJsonObject);
 
-            if(responseCode == ResponseCode.Response.Success)
+            if (responseCode == ResponseCode.Response.Success)
             {
                 string deviceSpecificationTablesHtml = string.Empty;
-                responseCode = ParsedeviceSpecificationJsonForTablesHtml(jsonObject, ref deviceSpecificationTablesHtml);
+                responseCode = ParsedeviceSpecificationJsonForTablesHtml(DeviceSpecificationJsonObject, ref DeviceSpecificationTablesHtml);
 
                 if (responseCode == ResponseCode.Response.Success)
                 {
                     List<List<string>> tableToReturn = new List<List<string>>();
-                    responseCode = ParseTablesHtmlForTable(deviceSpecificationTablesHtml, deviceTablePosition, ref tableToReturn);
+                    responseCode = ParseTablesHtmlForTable(DeviceSpecificationTablesHtml, deviceTablePosition, ref tableToReturn);
 
                     foreach (List<string> row in tableToReturn)
                     {
                         DeviceList.Add(new Device(Convert.ToByte(row[0]), row[1]));
                     }
 
-                    UpdateDataSources(0xff);
+                    UpdateDataSources();
                 }
             }
 
-            logTextbox.AppendText(responseCode.ToString());
+            logTextbox.AppendText(responseCode.ToString() + "\r\n");
         }
 
         private void DevicesComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            JObject jsonObject = null;
+            Device device = (Device)DevicesComboBox.SelectedItem;
 
-            var responseCode = GetJsonFromHttpAuth(
-                DeviceSpecificationPageUrl,
-                usernameTextbox.Text,
-                passwordTextbox.Text,
-                ref jsonObject);
-
-            if (responseCode == ResponseCode.Response.Success)
+            if (device.Name != "Reserved")
             {
-                string deviceSpecificationTablesHtml = string.Empty;
-                responseCode = ParsedeviceSpecificationJsonForTablesHtml(jsonObject, ref deviceSpecificationTablesHtml);
+                CurrentlySelectedDeviceNumber = device.Index;
+
+                List<List<string>> tableToReturn = new List<List<string>>();
+                var responseCode = ParseTablesHtmlForTable(
+                    DeviceSpecificationTablesHtml,
+                    CurrentlySelectedDeviceNumber,   //the device number is the device index which is also the component table position on the device spec page.
+                    ref tableToReturn);
+
+                foreach (List<string> row in tableToReturn)
+                {
+                    DeviceList[CurrentlySelectedDeviceNumber].AddComponentToList(Convert.ToByte(row[0]), row[1], row[2]);
+                }
+
+                UpdateDataSources();
+            }
+        }
+
+        private void ComponentsComboBox_SelectedValueChanged(object sender, EventArgs e)
+        {
+            int parameterTablePosition = 0;
+            Component selectedComponent = (Component)ComponentsComboBox.SelectedItem;
+
+            if (selectedComponent.Name != "Reserved")
+            {
+                CurrentlySelectedComponentNumber = selectedComponent.Index;
+                JObject componentJsonObject = null;
+
+                var responseCode = GetJsonFromHttpAuth(
+                    GetRestUrl(selectedComponent.ComponentPageTitle),
+                    usernameTextbox.Text,
+                    passwordTextbox.Text,
+                    ref componentJsonObject);
 
                 if (responseCode == ResponseCode.Response.Success)
                 {
-                    if (DevicesComboBox.SelectedValue != null)
+                    string componentTablesHtml = string.Empty;
+                    responseCode = ParsedeviceSpecificationJsonForTablesHtml(componentJsonObject, ref componentTablesHtml);
+
+                    List<List<string>> componentParametersTable = new List<List<string>>();
+                    responseCode = ParseTablesHtmlForTable(
+                        componentTablesHtml,
+                        parameterTablePosition,
+                        ref componentParametersTable);
+
+                    Component componentToAccess = null;
+                    responseCode = DeviceList[CurrentlySelectedDeviceNumber].GetComponent(CurrentlySelectedComponentNumber, ref componentToAccess);
+
+                    if (responseCode == ResponseCode.Response.Success)
                     {
-                        Device device = (Device)DevicesComboBox.SelectedItem;
-                        var deviceNumber = device.Index;
-
-                        List<List<string>> tableToReturn = new List<List<string>>();
-                        responseCode = ParseTablesHtmlForTable(
-                            deviceSpecificationTablesHtml,
-                            deviceNumber,
-                            ref tableToReturn);
-
-                        foreach (List<string> row in tableToReturn)
+                        foreach (List<string> row in componentParametersTable)
                         {
-                            DeviceList[deviceNumber].AddComponentToList(Convert.ToByte(row[0]), row[1]);
+                            componentToAccess.AddParameterToList(Convert.ToByte(row[0]), row[1]);
                         }
 
-                        UpdateDataSources(deviceNumber);
+                        UpdateDataSources();
                     }
                 }
             }
-            
         }
 
         private ResponseCode.Response ParsedeviceSpecificationJsonForTablesHtml(JObject jsonObject,  ref string deviceSpecificationTablesHtml)
@@ -211,19 +246,27 @@ namespace ConfluenceJsonRequest
             return responseCode;
         }
 
-        private void UpdateDataSources(int deviceNumber)
+        private void UpdateDataSources()
         {
             DevicesComboBox.DataSource = DeviceList;
 
             DevicesComboBox.DisplayMember = "Name";
             DevicesComboBox.ValueMember = "Index";
             
-            if(DeviceList.Count >= deviceNumber)
+            if(DeviceList.Count >= CurrentlySelectedDeviceNumber)
             {
-                ComponentsComboBox.DataSource = DeviceList[deviceNumber].ComponentList;
+                ComponentsComboBox.DataSource = DeviceList[CurrentlySelectedDeviceNumber].ComponentList;
 
                 ComponentsComboBox.DisplayMember = "Name";
                 ComponentsComboBox.ValueMember = "Index";
+
+                if (DeviceList[CurrentlySelectedDeviceNumber].ComponentList.Count >= CurrentlySelectedComponentNumber)
+                {
+                    ParametersCombobox.DataSource = DeviceList[CurrentlySelectedDeviceNumber].ComponentList[CurrentlySelectedComponentNumber].ParameterList;
+
+                    ParametersCombobox.DisplayMember = "Name";
+                    ParametersCombobox.ValueMember = "Index";
+                }
             }
         }
     }
